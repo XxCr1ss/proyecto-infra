@@ -1,0 +1,22 @@
+FROM python:3.9-slim
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar requirements simplificados e instalar dependencias de Python
+COPY requirements_simple.txt .
+RUN pip install --no-cache-dir -r requirements_simple.txt
+
+# Copiar código de la aplicación simplificada
+COPY api_simple.py .
+
+# Exponer puerto
+EXPOSE 8001
+
+# Comando para ejecutar la aplicación
+CMD ["python", "api_simple.py"] 

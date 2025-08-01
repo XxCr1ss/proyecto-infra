@@ -1,29 +1,28 @@
 @echo off
-echo Iniciando sistema ML local...
+echo ========================================
+echo Iniciando Proyecto ML Local
+echo ========================================
 
-echo 1. Activando entorno virtual...
-call venv\Scripts\activate
-
-echo 2. Iniciando Ray head node...
-start "Ray Head" cmd /k "venv\Scripts\activate && ray start --head --port=6379 --dashboard-port=8265 --dashboard-host=0.0.0.0"
-
-echo 3. Esperando que Ray inicie...
-timeout /t 5
-
-echo 4. Iniciando API backend...
-start "API Backend" cmd /k "venv\Scripts\activate && cd microservices\api && python main.py"
-
-echo 5. Esperando que API inicie...
-timeout /t 5
-
-echo 6. Iniciando Frontend...
-start "Frontend" cmd /k "cd frontend && npm start"
-
-echo Sistema iniciado! Abre http://localhost:3000 en tu navegador
 echo.
-echo Servicios disponibles:
-echo - Frontend: http://localhost:3000
-echo - API Backend: http://localhost:8000
-echo - Ray Dashboard: http://localhost:8265
+echo 1. Iniciando API en puerto 8001...
+start "API Server" cmd /k "python api_simple.py"
+
 echo.
-pause 
+echo 2. Esperando 5 segundos para que la API se inicie...
+timeout /t 5 /nobreak > nul
+
+echo.
+echo 3. Iniciando Frontend en puerto 3000...
+cd frontend
+start "Frontend" cmd /k "npm start"
+
+echo.
+echo ========================================
+echo Proyecto iniciado correctamente!
+echo ========================================
+echo.
+echo API: http://localhost:8001
+echo Frontend: http://localhost:3000
+echo.
+echo Presiona cualquier tecla para cerrar esta ventana...
+pause > nul 

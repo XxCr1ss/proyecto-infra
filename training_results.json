@@ -1,0 +1,35 @@
+{
+  "data_processing": {
+    "original_rows": 1000,
+    "features_used": [
+      "feature1",
+      "feature2",
+      "feature3",
+      "feature4",
+      "feature5"
+    ]
+  },
+  "model_training": {
+    "models_trained": 3,
+    "best_r2": 0.9462957654765013,
+    "avg_r2": 0.764162642884559,
+    "training_results": {
+      "random_forest": {
+        "r2": 0.9267468587330101,
+        "mse": 0.6282064276854602
+      },
+      "gradient_boosting": {
+        "r2": 0.9462957654765013,
+        "mse": 0.4605583424555803
+      },
+      "linear_regression": {
+        "r2": 0.4194453044441655,
+        "mse": 4.978737908888824
+      }
+    }
+  },
+  "ensemble_performance": {
+    "ensemble_mse": 0.7437952729011416,
+    "ensemble_r2": 0.9145991382008403
+  }
+}

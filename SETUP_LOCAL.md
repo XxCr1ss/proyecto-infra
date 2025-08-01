@@ -1,341 +1,176 @@
-# Guía de Ejecución Local
+# Configuración Local del Proyecto ML
 
-Esta guía te ayudará a ejecutar el sistema de ML con Ray y microservicios localmente, sin necesidad de Docker ni AWS.
+Este documento explica cómo ejecutar el proyecto de Machine Learning localmente sin necesidad de AWS o Docker.
 
 ## Prerrequisitos
 
-- **Python 3.8+** instalado
-- **Node.js 16+** y npm instalados
-- **Git** para clonar el repositorio
+- Python 3.8+ (recomendado 3.11+)
+- Node.js 16+ y npm
+- Git
 
-## Paso 1: Configurar el Entorno Python
+## Instalación
 
-### 1.1 Crear entorno virtual
-
-```bash
-# Crear entorno virtual
-python -m venv venv
-
-# Activar entorno virtual
-# En Windows:
-venv\Scripts\activate
-# En macOS/Linux:
-source venv/bin/activate
-```
-
-### 1.2 Instalar dependencias Python
+### 1. Clonar el repositorio
 
 ```bash
-# Instalar todas las dependencias
-pip install -r requirements.txt
+git clone <repository-url>
+cd proyecto-infra
 ```
 
-## Paso 2: Configurar Ray Cluster Local
-
-### 2.1 Iniciar Ray Head Node
-
-Abre una nueva terminal y ejecuta:
+### 2. Instalar dependencias de Python
 
 ```bash
-# Activar entorno virtual
-# En Windows:
-venv\Scripts\activate
-# En macOS/Linux:
-source venv/bin/activate
-
-# Iniciar Ray head node
-ray start --head --port=6379 --dashboard-port=8265 --dashboard-host=0.0.0.0
+pip install -r requirements_simple.txt
 ```
 
-Deberías ver algo como:
-```
-Local node IP: 192.168.1.100
-Ray runtime started.
-To connect to this Ray runtime, use ray.init(address='ray://localhost:10001')
-```
-
-### 2.2 Verificar Ray Dashboard
-
-Abre tu navegador y ve a: `http://localhost:8265`
-
-Deberías ver el dashboard de Ray con información del cluster.
-
-## Paso 3: Ejecutar el Backend API
-
-### 3.1 Configurar variables de entorno
-
-Crea un archivo `.env` en la raíz del proyecto:
+### 3. Instalar dependencias del Frontend
 
 ```bash
-# Crear archivo .env
-echo "RAY_DISABLE_IMPORT_WARNING=1" > .env
-echo "PYTHONPATH=." >> .env
-```
-
-### 3.2 Ejecutar la API
-
-En una nueva terminal:
-
-```bash
-# Activar entorno virtual
-# En Windows:
-venv\Scripts\activate
-# En macOS/Linux:
-source venv/bin/activate
-
-# Navegar al directorio del proyecto
-cd microservices/api
-
-# Ejecutar la API
-python main.py
-```
-
-La API estará disponible en: `http://localhost:8000`
-
-### 3.3 Verificar la API
-
-```bash
-# Verificar que la API esté funcionando
-curl http://localhost:8000/health
-
-# Ver documentación de la API
-# Abre en tu navegador: http://localhost:8000/docs
-```
-
-## Paso 4: Configurar el Frontend
-
-### 4.1 Instalar dependencias Node.js
-
-```bash
-# Navegar al directorio frontend
 cd frontend
-
-# Instalar dependencias
 npm install
+cd ..
 ```
 
-### 4.2 Configurar URL de la API
+## Ejecución
 
-Edita el archivo `frontend/src/components/Dashboard.js` para asegurarte de que apunte a la API local:
+### Opción 1: Usando scripts automáticos (Recomendado)
 
-```javascript
-// Cambiar la URL de la API si es necesario
-const API_BASE_URL = 'http://localhost:8000';
-```
-
-### 4.3 Ejecutar el Frontend
+#### Iniciar el proyecto:
 
 ```bash
-# En el directorio frontend
+start_local.bat
+```
+
+#### Detener el proyecto:
+
+```bash
+stop_local.bat
+```
+
+### Opción 2: Ejecución manual
+
+#### Paso 1: Iniciar la API
+
+```bash
+python api_simple.py
+```
+
+La API estará disponible en: http://localhost:8001
+
+#### Paso 2: Iniciar el Frontend (en otra terminal)
+
+```bash
+cd frontend
 npm start
 ```
 
-El frontend estará disponible en: `http://localhost:3000`
+El frontend estará disponible en: http://localhost:3000
 
-## Paso 5: Verificar Todo el Sistema
+## Servicios Disponibles
 
-### 5.1 Verificar todos los servicios
+### API Backend (Puerto 8001)
 
-1. **Ray Dashboard**: `http://localhost:8265`
-2. **API Backend**: `http://localhost:8000`
-3. **Frontend**: `http://localhost:3000`
+- **Health Check**: `GET http://localhost:8001/health`
+- **Documentación**: `GET http://localhost:8001/docs`
+- **Entrenar modelo**: `POST http://localhost:8001/train`
+- **Realizar predicciones**: `POST http://localhost:8001/predict`
+- **Estado del entrenamiento**: `GET http://localhost:8001/training-status`
+- **Datos de ejemplo**: `GET http://localhost:8001/sample-data`
 
-### 5.2 Probar funcionalidades
+### Frontend (Puerto 3000)
 
-1. Abre `http://localhost:3000` en tu navegador
-2. Ve a la pestaña "Training" y ejecuta un entrenamiento
-3. Ve a "Prediction" y prueba hacer predicciones
-4. Ve a "Benchmark" para ver comparaciones de rendimiento
+- **Interfaz principal**: http://localhost:3000
+- **Dashboard**: http://localhost:3000/dashboard
+- **Entrenamiento**: http://localhost:3000/training
+- **Predicciones**: http://localhost:3000/prediction
 
-## Paso 6: Scripts de Automatización
+## Uso del Sistema
 
-### 6.1 Script para Windows (start_local.bat)
+### 1. Entrenar Modelos
 
-Crea un archivo `start_local.bat` en la raíz:
+1. Ve a http://localhost:3000/training
+2. Configura los parámetros de entrenamiento
+3. Haz clic en "Iniciar Entrenamiento"
+4. Monitorea el progreso en tiempo real
 
-```batch
-@echo off
-echo Iniciando sistema ML local...
+### 2. Realizar Predicciones
 
-echo 1. Activando entorno virtual...
-call venv\Scripts\activate
+1. Ve a http://localhost:3000/prediction
+2. Ingresa los datos de entrada
+3. Haz clic en "Predecir"
+4. Visualiza los resultados
 
-echo 2. Iniciando Ray head node...
-start "Ray Head" cmd /k "venv\Scripts\activate && ray start --head --port=6379 --dashboard-port=8265 --dashboard-host=0.0.0.0"
+### 3. Ver Métricas
 
-echo 3. Esperando que Ray inicie...
-timeout /t 5
+1. Ve a http://localhost:3000/dashboard
+2. Revisa las métricas de rendimiento
+3. Analiza los resultados del entrenamiento
 
-echo 4. Iniciando API backend...
-start "API Backend" cmd /k "venv\Scripts\activate && cd microservices\api && python main.py"
+## Estructura del Proyecto
 
-echo 5. Esperando que API inicie...
-timeout /t 5
-
-echo 6. Iniciando Frontend...
-start "Frontend" cmd /k "cd frontend && npm start"
-
-echo Sistema iniciado! Abre http://localhost:3000 en tu navegador
-pause
+```
+proyecto-infra/
+├── api_simple.py              # API simplificada sin Ray
+├── requirements_simple.txt    # Dependencias Python simplificadas
+├── start_local.bat           # Script para iniciar servicios
+├── stop_local.bat            # Script para detener servicios
+├── frontend/                 # Aplicación React
+│   ├── src/
+│   ├── package.json
+│   └── ...
+└── ...
 ```
 
-### 6.2 Script para macOS/Linux (start_local.sh)
+## Solución de Problemas
 
-Crea un archivo `start_local.sh` en la raíz:
+### Error: Puerto 8001 en uso
 
 ```bash
-#!/bin/bash
-echo "Iniciando sistema ML local..."
-
-echo "1. Activando entorno virtual..."
-source venv/bin/activate
-
-echo "2. Iniciando Ray head node..."
-ray start --head --port=6379 --dashboard-port=8265 --dashboard-host=0.0.0.0 &
-RAY_PID=$!
-
-echo "3. Esperando que Ray inicie..."
-sleep 5
-
-echo "4. Iniciando API backend..."
-cd microservices/api
-python main.py &
-API_PID=$!
-
-echo "5. Esperando que API inicie..."
-sleep 5
-
-echo "6. Iniciando Frontend..."
-cd ../../frontend
-npm start &
-FRONTEND_PID=$!
-
-echo "Sistema iniciado! Abre http://localhost:3000 en tu navegador"
-echo "Para detener: kill $RAY_PID $API_PID $FRONTEND_PID"
-
-# Mantener script ejecutándose
-wait
+# Cambiar puerto en api_simple.py línea 157
+uvicorn.run(app, host="0.0.0.0", port=8002)
 ```
 
-Hacer ejecutable:
-```bash
-chmod +x start_local.sh
-```
+### Error: Puerto 3000 en uso
 
-## Paso 7: Solución de Problemas
+El frontend automáticamente sugerirá usar otro puerto.
 
-### 7.1 Problemas comunes
-
-**Error: Ray no puede conectarse**
-```bash
-# Verificar que Ray esté ejecutándose
-ray status
-
-# Reiniciar Ray si es necesario
-ray stop
-ray start --head --port=6379 --dashboard-port=8265 --dashboard-host=0.0.0.0
-```
-
-**Error: Puerto ocupado**
-```bash
-# Verificar puertos en uso
-# En Windows:
-netstat -ano | findstr :8000
-netstat -ano | findstr :3000
-netstat -ano | findstr :6379
-
-# En macOS/Linux:
-lsof -i :8000
-lsof -i :3000
-lsof -i :6379
-```
-
-**Error: Módulos no encontrados**
-```bash
-# Verificar que estés en el entorno virtual
-which python
-# Debería mostrar: .../venv/bin/python
-
-# Reinstalar dependencias
-pip install -r requirements.txt
-```
-
-### 7.2 Logs útiles
+### Error: Módulos no encontrados
 
 ```bash
-# Ver logs de Ray
-ray logs
-
-# Ver logs de la API (en la terminal donde ejecutas main.py)
-# Los logs aparecen directamente en la consola
-
-# Ver logs del frontend (en la terminal donde ejecutas npm start)
-# Los logs aparecen directamente en la consola
+pip install -r requirements_simple.txt
 ```
 
-## Paso 8: Detener el Sistema
-
-### 8.1 Detener todos los servicios
+### Error: Dependencias de Node.js
 
 ```bash
-# Detener Ray
-ray stop
-
-# Detener API (Ctrl+C en la terminal donde está ejecutándose)
-# Detener Frontend (Ctrl+C en la terminal donde está ejecutándose)
+cd frontend
+npm install
 ```
 
-### 8.2 Script de parada
+## Diferencias con la Versión Completa
 
-Crea `stop_local.bat` (Windows):
-```batch
-@echo off
-echo Deteniendo sistema ML local...
-ray stop
-taskkill /f /im node.exe
-taskkill /f /im python.exe
-echo Sistema detenido
-pause
-```
+Esta versión simplificada:
 
-Crea `stop_local.sh` (macOS/Linux):
-```bash
-#!/bin/bash
-echo "Deteniendo sistema ML local..."
-ray stop
-pkill -f "python main.py"
-pkill -f "npm start"
-echo "Sistema detenido"
-```
+- ✅ No requiere Ray (paralelización)
+- ✅ No requiere Docker
+- ✅ No requiere AWS
+- ✅ Funciona completamente en local
+- ❌ No tiene paralelización distribuida
+- ❌ No tiene escalabilidad automática
 
-## Paso 9: Desarrollo
+## Próximos Pasos
 
-### 9.1 Estructura de archivos importantes
+Para usar la versión completa con Ray y Docker:
 
-```
-indra_proyecto/
-├── microservices/api/main.py          # API principal
-├── ray_parallelization/ml_pipeline.py # Pipeline de ML
-├── frontend/src/                      # Código React
-├── requirements.txt                   # Dependencias Python
-└── frontend/package.json             # Dependencias Node.js
-```
+1. Instalar Docker Desktop
+2. Ejecutar `docker-compose up --build`
+3. Ver documentación en `README.md`
 
-### 9.2 Modificar el código
+## Soporte
 
-- **API**: Edita `microservices/api/main.py`
-- **ML Pipeline**: Edita `ray_parallelization/ml_pipeline.py`
-- **Frontend**: Edita archivos en `frontend/src/`
+Si encuentras problemas:
 
-Los cambios se reflejan automáticamente al guardar (hot reload).
-
-## Paso 10: Próximos Pasos
-
-Una vez que tengas todo funcionando localmente:
-
-1. **Explora la API**: Ve a `http://localhost:8000/docs`
-2. **Prueba el frontend**: Ve a `http://localhost:3000`
-3. **Monitorea Ray**: Ve a `http://localhost:8265`
-4. **Experimenta**: Modifica parámetros y ve cómo afectan el rendimiento
-
-¡Disfruta desarrollando tu sistema de ML con Ray! 
+1. Verifica que todos los prerrequisitos estén instalados
+2. Revisa los logs de error en las terminales
+3. Asegúrate de que los puertos no estén en uso
+4. Reinicia los servicios usando los scripts

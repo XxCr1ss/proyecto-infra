@@ -1,16 +1,11 @@
 @echo off
 echo ========================================
-echo Deteniendo Proyecto ML Local
+echo Deteniendo Proyecto ML con Docker
 echo ========================================
 
 echo.
-echo Deteniendo procesos de Python (API)...
-taskkill /f /im python.exe 2>nul
-taskkill /f /im pythonw.exe 2>nul
-
-echo.
-echo Deteniendo procesos de Node.js (Frontend)...
-taskkill /f /im node.exe 2>nul
+echo Deteniendo contenedores...
+docker-compose -f docker-compose.simple.yml down
 
 echo.
 echo ========================================
