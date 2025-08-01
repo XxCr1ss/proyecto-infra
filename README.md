@@ -1,43 +1,122 @@
-# Pipeline de ML con Ray y Docker Compose
+# Proyecto: Infraestructuras Paralelas y Distribuidas con Ray y Microservicios
 
-Este proyecto demuestra un pipeline de machine learning paralelizado con Ray y desplegado como un conjunto de microservicios orquestados con Docker Compose.
+## Descripción del Proyecto
 
-## Arquitectura
+Este proyecto implementa una aplicación de Machine Learning distribuida que combina:
 
-La aplicación consta de los siguientes servicios:
+- **Ray Framework** para paralelización y distribución de tareas de cómputo
+- **Arquitectura de Microservicios** desplegada en AWS EC2
+- **APIs REST** construidas con FastAPI
+- **Cliente Frontend** para interacción con las APIs
 
-- `ray-head`: El nodo principal del clúster de Ray.
-- `ray-worker`: Un nodo trabajador para el clúster de Ray.
-- `api`: una aplicación FastAPI que expone un endpoint de predicción.
-- `trainer`: Un servicio que ejecuta el pipeline de entrenamiento de ML.
-- `client`: Un cliente simple que consume la API.
+## Estructura del Proyecto
 
-## Cómo Ejecutar
+```
+indra_proyecto/
+├── ray_parallelization/     # Paralelización con Ray
+├── microservices/          # Microservicios y APIs
+├── frontend/              # Cliente frontend
+├── deployment/            # Scripts de despliegue
+├── docs/                  # Documentación
+└── docker-compose.yml     # Orquestación de contenedores
+```
 
-1.  **Construir y ejecutar los servicios:**
+## Tecnologías Utilizadas
 
-    ```bash
-    docker-compose up -d --build
-    ```
+- **Ray**: Framework para paralelización y distribución
+- **FastAPI**: Framework para APIs REST
+- **Docker**: Containerización
+- **AWS EC2**: Infraestructura en la nube
+- **React**: Frontend
+- **Scikit-learn**: Machine Learning
+- **Pandas/NumPy**: Procesamiento de datos
 
-2.  **Ver los logs para ver la salida:**
+## Instalación y Configuración
 
-    ```bash
-    docker-compose logs -f
-    ```
+### Prerrequisitos
 
-Deberías ver la salida del pipeline de entrenamiento del servicio `trainer` y luego la salida del servicio `client` haciendo una predicción.
+- Python 3.8+
+- Docker y Docker Compose
+- AWS CLI configurado
+- Node.js 16+ (para el frontend)
 
-3.  **Acceder al Dashboard de Ray:**
+### Instalación Local
 
-    Abre tu navegador y navega a [http://localhost:8265](http://localhost:8265) para ver el Dashboard de Ray.
+1. **Clonar el repositorio:**
 
-4.  **Acceder a la documentación de la API:**
+```bash
+git clone <repository-url>
+cd indra_proyecto
+```
 
-    Abre tu navegador y navega a [http://localhost:8000/docs](http://localhost:8000/docs) para ver la documentación de FastAPI.
+2. **Instalar dependencias de Python:**
 
-5.  **Detener los servicios:**
+```bash
+pip install -r requirements.txt
+```
 
-    ```bash
-    docker-compose down
-    ```
+3. **Instalar dependencias del frontend:**
+
+```bash
+cd frontend
+npm install
+```
+
+4. **Ejecutar con Docker Compose:**
+
+```bash
+docker-compose up --build
+```
+
+## Uso
+
+### Desarrollo Local
+
+1. **Iniciar Ray cluster:**
+
+```bash
+cd ray_parallelization
+ray start --head
+```
+
+2. **Ejecutar paralelización:**
+
+```bash
+python ml_pipeline.py
+```
+
+3. **Iniciar microservicios:**
+
+```bash
+cd microservices
+uvicorn api.main:app --reload
+```
+
+4. **Iniciar frontend:**
+
+```bash
+cd frontend
+npm start
+```
+
+### Despliegue en AWS
+
+Ver sección de despliegue en `deployment/README.md`
+
+## APIs Disponibles
+
+- `POST /predict`: Realizar predicciones con el modelo ML
+- `GET /health`: Estado del servicio
+- `GET /metrics`: Métricas de rendimiento
+
+## Contribución
+
+1. Fork el proyecto
+2. Crear una rama para tu feature
+3. Commit tus cambios
+4. Push a la rama
+5. Abrir un Pull Request
+
+## Licencia
+
+Este proyecto está bajo la Licencia MIT.

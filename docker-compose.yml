@@ -1,64 +1,109 @@
+version: "3.8"
+
 services:
-  ray-head:
-    build:
-      context: ./ray
-    networks:
-      - ray_network
-    ports:
-      - "8265:8265" # Ray Dashboard
-      - "10001:10001"
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8265"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    command: bash -c "ray start --head --port=6379 --dashboard-host=0.0.0.0 --num-cpus=1 && tail -f /dev/null"
-
-  ray-worker:
-    build:
-      context: ./ray
-    networks:
-      - ray_network
-    depends_on:
-      ray-head:
-        condition: service_healthy
-    command: bash -c "ray start --address=ray-head:6379 --num-cpus=1 && tail -f /dev/null"
-
+  # API Backend con FastAPI
   api:
     build:
-      context: ./api
-    networks:
-      - ray_network
-    depends_on:
-      ray-head:
-        condition: service_healthy
-      trainer:
-        condition: service_started
+      context: .
+      dockerfile: Dockerfile.api
     ports:
-      - "8000:8000"
-    command: ["python", "main.py"]
-
-  trainer:
-    build:
-      context: ./ray
+      - "8001:8001"
+    environment:
+      - PYTHONPATH=/app
+      - RAY_DISABLE_IMPORT_WARNING=1
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=6379
+    volumes:
+      - ./microservices:/app/microservices
+      - ./ray_parallelization:/app/ray_parallelization
     networks:
-      - ray_network
+      - ml-network
     depends_on:
-      ray-head:
-        condition: service_healthy
-    command: ["python", "main.py"]
+      - ray-head
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  client:
+  # Frontend React
+  frontend:
     build:
-      context: ./client
-    networks:
-      - ray_network
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8001
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
-      api:
-        condition: service_started
-    command: ["python", "client.py"]
+      - api
+    networks:
+      - ml-network
+    restart: unless-stopped
+
+  # Ray Head Node
+  ray-head:
+    build:
+      context: .
+      dockerfile: Dockerfile.ray
+    ports:
+      - "6379:6379" # Redis port
+      - "8265:8265" # Ray dashboard
+      - "10001:10001" # Ray client port
+    environment:
+      - RAY_DISABLE_IMPORT_WARNING=1
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=6379
+    volumes:
+      - ./ray_parallelization:/app/ray_parallelization
+      - ./microservices:/app/microservices
+    networks:
+      - ml-network
+    restart: unless-stopped
+    command: ray start --head --port=6379 --dashboard-port=8265 --dashboard-host=0.0.0.0 --ray-client-server-port=10001
+
+  # Ray Worker Nodes (opcional, para escalabilidad)
+  ray-worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.ray
+    environment:
+      - RAY_DISABLE_IMPORT_WARNING=1
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=6379
+    volumes:
+      - ./ray_parallelization:/app/ray_parallelization
+      - ./microservices:/app/microservices
+    networks:
+      - ml-network
+    depends_on:
+      - ray-head
+    restart: unless-stopped
+    command: ray start --address=ray-head:6379 --num-cpus=2
+
+  ray-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.ray
+    environment:
+      - RAY_DISABLE_IMPORT_WARNING=1
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=6379
+    volumes:
+      - ./ray_parallelization:/app/ray_parallelization
+      - ./microservices:/app/microservices
+    networks:
+      - ml-network
+    depends_on:
+      - ray-head
+    restart: unless-stopped
+    command: ray start --address=ray-head:6379 --num-cpus=2
 
 networks:
-  ray_network:
+  ml-network:
     driver: bridge
+
+volumes:
+  ray-data:

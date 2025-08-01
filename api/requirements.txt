@@ -1,4 +1,0 @@
-fastapi
-uvicorn
-ray[serve]
-numpy
