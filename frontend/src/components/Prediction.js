@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Button, Form, Alert, Spinner } from "react-bootstrap";
+import { Row, Col, Card, Button, Form, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
 
 const Prediction = () => {
-  const [features, setFeatures] = useState([0, 0, 0, 0]);
+  const [features, setFeatures] = useState([0, 0, 0, 0, 0]);
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sampleData, setSampleData] = useState(null);
@@ -17,12 +17,14 @@ const Prediction = () => {
     try {
       const response = await axios.get("/sample-data?n_samples=1");
       setSampleData(response.data);
-      if (response.data.features.length > 0) {
+      if (response.data.features && response.data.features.length > 0) {
         setFeatures(response.data.features[0]);
       }
     } catch (error) {
       console.error("Error loading sample data:", error);
       toast.error("Error al cargar datos de ejemplo");
+      // Mantener el estado inicial si hay error
+      setFeatures([0, 0, 0, 0, 0]);
     }
   };
 
@@ -56,7 +58,13 @@ const Prediction = () => {
     }
   };
 
-  const featureNames = ["Feature 1", "Feature 2", "Feature 3", "Feature 4"];
+  const featureNames = [
+    "Feature 1",
+    "Feature 2",
+    "Feature 3",
+    "Feature 4",
+    "Feature 5",
+  ];
 
   return (
     <div>
@@ -72,7 +80,9 @@ const Prediction = () => {
               <Form>
                 {features.map((feature, index) => (
                   <div key={index} className="feature-input">
-                    <Form.Label>{featureNames[index]}</Form.Label>
+                    <Form.Label>
+                      {featureNames[index] || `Feature ${index + 1}`}
+                    </Form.Label>
                     <Form.Control
                       type="number"
                       step="0.01"
@@ -80,9 +90,9 @@ const Prediction = () => {
                       onChange={(e) =>
                         handleFeatureChange(index, e.target.value)
                       }
-                      placeholder={`Ingrese ${featureNames[
-                        index
-                      ].toLowerCase()}`}
+                      placeholder={`Ingrese ${(
+                        featureNames[index] || `Feature ${index + 1}`
+                      ).toLowerCase()}`}
                     />
                   </div>
                 ))}
@@ -151,7 +161,8 @@ const Prediction = () => {
                     <ul className="text-white mt-2">
                       {features.map((feature, index) => (
                         <li key={index}>
-                          {featureNames[index]}: {feature.toFixed(4)}
+                          {featureNames[index] || `Feature ${index + 1}`}:{" "}
+                          {feature.toFixed(4)}
                         </li>
                       ))}
                     </ul>

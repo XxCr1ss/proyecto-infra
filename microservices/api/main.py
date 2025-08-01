@@ -27,8 +27,12 @@ from ray_parallelization.ml_pipeline import MLPipeline, ModelTrainer
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Inicializar Ray
-ray.init(ignore_reinit_error=True)
+# Inicializar Ray usando el script de inicialización
+from ray_parallelization.init_ray import init_ray_cluster, get_ray_status
+
+if not init_ray_cluster():
+    logger.error("No se pudo inicializar Ray")
+    raise RuntimeError("Ray no pudo inicializarse")
 
 # Crear aplicación FastAPI
 app = FastAPI(
@@ -82,9 +86,11 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Verificar estado del servicio"""
+    ray_status = get_ray_status()
+    
     return {
         "status": "healthy",
-        "ray_status": ray.is_initialized(),
+        "ray_status": ray_status,
         "pipeline_ready": pipeline is not None,
         "timestamp": time.time()
     }
@@ -95,12 +101,8 @@ async def get_metrics():
     if pipeline is None:
         raise HTTPException(status_code=503, detail="Pipeline no inicializado")
     
-    # Obtener métricas de Ray
-    ray_metrics = {
-        "cluster_resources": ray.cluster_resources(),
-        "available_resources": ray.available_resources(),
-        "nodes": len(ray.nodes())
-    }
+    # Obtener métricas de Ray usando el script de inicialización
+    ray_metrics = get_ray_status()
     
     return {
         "ray_metrics": ray_metrics,

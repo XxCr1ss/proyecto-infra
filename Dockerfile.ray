@@ -19,4 +19,4 @@ COPY ray_parallelization/ ./ray_parallelization/
 EXPOSE 6379 8265
 
 # Comando por defecto (será sobrescrito por docker-compose)
-CMD ["ray", "start", "--head", "--port=6379", "--dashboard-port=8265", "--dashboard-host=0.0.0.0"] 
+CMD ["ray", "start", "--head", "--port=6379", "--dashboard-port=8265", "--dashboard-host=0.0.0.0", "--ray-client-server-port=10001"] 

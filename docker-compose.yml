@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # API Backend con FastAPI
@@ -11,11 +11,15 @@ services:
     environment:
       - PYTHONPATH=/app
       - RAY_DISABLE_IMPORT_WARNING=1
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=6379
     volumes:
       - ./microservices:/app/microservices
       - ./ray_parallelization:/app/ray_parallelization
     networks:
       - ml-network
+    depends_on:
+      - ray-head
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -32,6 +36,7 @@ services:
       - "3000:3000"
     environment:
       - REACT_APP_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - api
     networks:
@@ -44,16 +49,20 @@ services:
       context: .
       dockerfile: Dockerfile.ray
     ports:
-      - "6379:6379"  # Redis port
-      - "8265:8265"  # Ray dashboard
+      - "6379:6379" # Redis port
+      - "8265:8265" # Ray dashboard
+      - "10001:10001" # Ray client port
     environment:
       - RAY_DISABLE_IMPORT_WARNING=1
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=6379
     volumes:
       - ./ray_parallelization:/app/ray_parallelization
+      - ./microservices:/app/microservices
     networks:
       - ml-network
     restart: unless-stopped
-    command: ray start --head --port=6379 --dashboard-port=8265 --dashboard-host=0.0.0.0
+    command: ray start --head --port=6379 --dashboard-port=8265 --dashboard-host=0.0.0.0 --ray-client-server-port=10001
 
   # Ray Worker Nodes (opcional, para escalabilidad)
   ray-worker-1:
@@ -62,14 +71,17 @@ services:
       dockerfile: Dockerfile.ray
     environment:
       - RAY_DISABLE_IMPORT_WARNING=1
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=6379
     volumes:
       - ./ray_parallelization:/app/ray_parallelization
+      - ./microservices:/app/microservices
     networks:
       - ml-network
     depends_on:
       - ray-head
     restart: unless-stopped
-    command: ray start --address=ray-head:6379
+    command: ray start --address=ray-head:6379 --num-cpus=2
 
   ray-worker-2:
     build:
@@ -77,18 +89,21 @@ services:
       dockerfile: Dockerfile.ray
     environment:
       - RAY_DISABLE_IMPORT_WARNING=1
+      - RAY_HEAD_SERVICE_HOST=ray-head
+      - RAY_HEAD_SERVICE_PORT=6379
     volumes:
       - ./ray_parallelization:/app/ray_parallelization
+      - ./microservices:/app/microservices
     networks:
       - ml-network
     depends_on:
       - ray-head
     restart: unless-stopped
-    command: ray start --address=ray-head:6379
+    command: ray start --address=ray-head:6379 --num-cpus=2
 
 networks:
   ml-network:
     driver: bridge
 
 volumes:
-  ray-data: 
+  ray-data:

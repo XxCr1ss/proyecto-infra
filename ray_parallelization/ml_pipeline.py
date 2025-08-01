@@ -18,8 +18,8 @@ from typing import Dict, List, Tuple
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Inicializar Ray
-ray.init(ignore_reinit_error=True)
+# Inicializar Ray (se inicializará desde el servicio principal)
+# ray.init(ignore_reinit_error=True)
 
 @ray.remote
 class DataProcessor:

@@ -19,4 +19,4 @@ COPY api_simple.py .
 EXPOSE 8001
 
 # Comando para ejecutar la aplicación
-CMD ["python", "api_simple.py"] 
+CMD ["python", "-m", "uvicorn", "api_simple:app", "--host", "0.0.0.0", "--port", "8001"] 
