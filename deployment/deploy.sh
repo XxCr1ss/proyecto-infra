@@ -91,7 +91,7 @@ create_env() {
         cat > .env << EOF
 RAY_DISABLE_IMPORT_WARNING=1
 PYTHONPATH=/app
-REACT_APP_API_URL=http://localhost:8000
+REACT_APP_API_URL=http://localhost:8001
 EOF
         success "Archivo .env creado"
     else
@@ -140,7 +140,7 @@ check_health() {
     log "Verificando estado de los servicios..."
     
     # Verificar API
-    if curl -f http://localhost:8000/health &> /dev/null; then
+    if curl -f http://localhost:8001/health &> /dev/null; then
         success "API está funcionando"
     else
         error "API no está respondiendo"
@@ -232,7 +232,7 @@ show_system_info() {
     echo "Disk: $(df -h / | awk 'NR==2{print $4}') available"
     
     echo -e "\n=== Network Ports ==="
-    netstat -tlnp | grep -E ':(3000|8000|6379|8265)'
+    netstat -tlnp | grep -E ':(3000|8001|6379|8265)'
 }
 
 # Función principal

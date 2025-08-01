@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config";
 
 const Training = () => {
   const [trainingConfig, setTrainingConfig] = useState({
@@ -27,7 +28,7 @@ const Training = () => {
 
   const fetchTrainingStatus = async () => {
     try {
-      const response = await axios.get("/training-status");
+      const response = await axios.get(API_ENDPOINTS.TRAINING_STATUS);
       setTrainingStatus(response.data);
       setIsTraining(response.data.status === "training");
     } catch (error) {
@@ -38,7 +39,7 @@ const Training = () => {
   const handleStartTraining = async () => {
     setIsTraining(true);
     try {
-      await axios.post("/train", trainingConfig);
+      await axios.post(API_ENDPOINTS.TRAIN, trainingConfig);
       toast.success("Entrenamiento iniciado exitosamente");
     } catch (error) {
       console.error("Error starting training:", error);

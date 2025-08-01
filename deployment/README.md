@@ -33,7 +33,7 @@ Asegúrate de que el security group permita el tráfico en los siguientes puerto
 - **80**: HTTP
 - **443**: HTTPS
 - **3000**: Frontend React
-- **8000**: API FastAPI
+- **8001**: API FastAPI
 - **6379**: Ray Redis
 - **8265**: Ray Dashboard
 
@@ -83,7 +83,7 @@ cd indra_proyecto
 cat > .env << EOF
 RAY_DISABLE_IMPORT_WARNING=1
 PYTHONPATH=/app
-REACT_APP_API_URL=http://tu-ip-instancia:8000
+REACT_APP_API_URL=http://tu-ip-instancia:8001
 EOF
 ```
 
@@ -104,7 +104,7 @@ docker-compose logs -f
 
 ```bash
 # Verificar API
-curl http://localhost:8000/health
+curl http://localhost:8001/health
 
 # Verificar Frontend
 curl http://localhost:3000
@@ -146,7 +146,7 @@ server {
 
     # API
     location /api/ {
-        proxy_pass http://localhost:8000/;
+        proxy_pass http://localhost:8001/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -239,7 +239,7 @@ sudo crontab -e
 
 ### Problemas Comunes
 
-1. **Puertos ocupados**: Verificar que los puertos 3000, 8000, 6379, 8265 estén libres
+1. **Puertos ocupados**: Verificar que los puertos 3000, 8001, 6379, 8265 estén libres
 2. **Memoria insuficiente**: Aumentar el tamaño de la instancia EC2
 3. **Problemas de red**: Verificar security groups y firewall
 4. **Ray no inicia**: Verificar logs con `docker-compose logs ray-head`

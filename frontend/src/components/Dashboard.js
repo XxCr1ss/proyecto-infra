@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Row, Col, Card, Button, Alert } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config";
 
 const Dashboard = () => {
   const [healthStatus, setHealthStatus] = useState(null);
@@ -17,8 +18,8 @@ const Dashboard = () => {
   const fetchSystemStatus = async () => {
     try {
       const [healthResponse, metricsResponse] = await Promise.all([
-        axios.get("/health"),
-        axios.get("/metrics"),
+        axios.get(API_ENDPOINTS.HEALTH),
+        axios.get(API_ENDPOINTS.METRICS),
       ]);
 
       setHealthStatus(healthResponse.data);

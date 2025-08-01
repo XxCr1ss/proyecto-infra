@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Row, Col, Card, Button, Form, Alert, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config";
 import {
   BarChart,
   Bar,
@@ -24,7 +25,7 @@ const Benchmark = () => {
   const handleRunBenchmark = async () => {
     setLoading(true);
     try {
-      const response = await axios.post("/benchmark", benchmarkConfig);
+      const response = await axios.post(API_ENDPOINTS.BENCHMARK, benchmarkConfig);
       setBenchmarkResults(response.data);
       toast.success("Benchmark ejecutado exitosamente");
     } catch (error) {

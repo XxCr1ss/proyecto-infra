@@ -42,7 +42,7 @@ def test_api_endpoints():
     """Prueba los endpoints de la API"""
     print("\n🧪 Probando endpoints de la API...")
     
-    base_url = "http://localhost:8000"
+    base_url = "http://localhost:8001"
     
     try:
         # Health check
@@ -83,7 +83,7 @@ def test_prediction():
     """Prueba la funcionalidad de predicción"""
     print("\n🧪 Probando predicciones...")
     
-    base_url = "http://localhost:8000"
+    base_url = "http://localhost:8001"
     
     try:
         # Obtener datos de ejemplo
@@ -120,7 +120,7 @@ def test_benchmark():
     """Prueba la funcionalidad de benchmark"""
     print("\n🧪 Probando benchmark...")
     
-    base_url = "http://localhost:8000"
+    base_url = "http://localhost:8001"
     
     try:
         benchmark_request = {

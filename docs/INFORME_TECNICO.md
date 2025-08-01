@@ -35,7 +35,7 @@ El sistema está compuesto por tres componentes principales:
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │   API Gateway   │    │   Ray Cluster   │
 │   React         │◄──►│   FastAPI       │◄──►│   Head + Workers│
-│   (Puerto 3000) │    │   (Puerto 8000) │    │   (Puerto 6379) │
+│   (Puerto 3000) │    │   (Puerto 8001) │    │   (Puerto 6379) │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -126,7 +126,7 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "8001:8001"
   frontend:
     build: ./frontend
     ports:

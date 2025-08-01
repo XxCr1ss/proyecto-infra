@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Row, Col, Card, Button, Alert } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config";
 import {
   LineChart,
   Line,
@@ -29,7 +30,7 @@ const Metrics = () => {
 
   const fetchMetrics = async () => {
     try {
-      const response = await axios.get("/metrics");
+      const response = await axios.get(API_ENDPOINTS.METRICS);
       setMetrics(response.data);
       setLastUpdate(new Date());
       setLoading(false);

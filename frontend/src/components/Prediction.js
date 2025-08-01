@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Row, Col, Card, Button, Form, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config";
 
 const Prediction = () => {
   const [features, setFeatures] = useState([0, 0, 0, 0, 0]);
@@ -15,7 +16,7 @@ const Prediction = () => {
 
   const loadSampleData = async () => {
     try {
-      const response = await axios.get("/sample-data?n_samples=1");
+      const response = await axios.get(`${API_ENDPOINTS.SAMPLE_DATA}?n_samples=1`);
       setSampleData(response.data);
       if (response.data.features && response.data.features.length > 0) {
         setFeatures(response.data.features[0]);
@@ -37,7 +38,7 @@ const Prediction = () => {
   const handlePredict = async () => {
     setLoading(true);
     try {
-      const response = await axios.post("/predict", {
+      const response = await axios.post(API_ENDPOINTS.PREDICT, {
         features: [features],
       });
 
