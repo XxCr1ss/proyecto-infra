@@ -1,0 +1,64 @@
+services:
+  ray-head:
+    build:
+      context: ./ray
+    networks:
+      - ray_network
+    ports:
+      - "8265:8265" # Ray Dashboard
+      - "10001:10001"
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8265"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: bash -c "ray start --head --port=6379 --dashboard-host=0.0.0.0 --num-cpus=1 && tail -f /dev/null"
+
+  ray-worker:
+    build:
+      context: ./ray
+    networks:
+      - ray_network
+    depends_on:
+      ray-head:
+        condition: service_healthy
+    command: bash -c "ray start --address=ray-head:6379 --num-cpus=1 && tail -f /dev/null"
+
+  api:
+    build:
+      context: ./api
+    networks:
+      - ray_network
+    depends_on:
+      ray-head:
+        condition: service_healthy
+      trainer:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    command: ["python", "main.py"]
+
+  trainer:
+    build:
+      context: ./ray
+    networks:
+      - ray_network
+    depends_on:
+      ray-head:
+        condition: service_healthy
+    command: ["python", "main.py"]
+
+  client:
+    build:
+      context: ./client
+    networks:
+      - ray_network
+    depends_on:
+      api:
+        condition: service_started
+    command: ["python", "client.py"]
+
+networks:
+  ray_network:
+    driver: bridge
